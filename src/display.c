@@ -36,7 +36,7 @@ void display_clear() {
 }
 
 // Render text on the display
-void display_text(const char* text) {
+void display_text(char* text) {
 	uint8_t text_len = strlen(text);
     ssd1306_display_text(&dev, 0, text, text_len, false);
 }
