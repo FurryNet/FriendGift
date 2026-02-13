@@ -33,3 +33,8 @@ void sample_stop() {
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
+
+// Play 8-bit PCM data via 44.1kHz sample rate.
+void play_pcm(uint8_t *pcm, size_t size) {
+
+}
