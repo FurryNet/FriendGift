@@ -3,28 +3,24 @@
 #include <driver/i2c.h>
 #include <ledcontrol.h>
 #include <sound.h>
-
+#include <btnctrl.h>
 #define sda_pin 21
 #define scl_pin 20
 #define frequency 400000
 
 void setup_i2c();
-void conf_led(int enable);
+void turn_on_led();
+void turn_off_led();
+
+
 void app_main() {
     ESP_LOGI("main", "Starting application");
     setup_i2c();
     init_led();
     display_init();
+    btnctrl_init();
     init_sound();
-    display_text("Goodbye world!");
-    while(true) {
-        set_led(1);
-        sample_start();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        set_led(0);
-        sample_stop();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
+    btnctrl_register_event(turn_on_led, turn_off_led);
 }
 
 void setup_i2c() {
@@ -41,4 +37,17 @@ void setup_i2c() {
         ESP_LOGI("I2C_Setup", "hdc2080 driver installed successfully");
     else
         ESP_LOGE("I2C_Setup", "hdc2080 driver failed to install");
+}
+
+
+void turn_on_led() {
+    set_led(1);
+    sample_start();
+    display_text("Hello world!");
+}
+
+void turn_off_led() {
+    set_led(0);
+    sample_stop();
+    display_text("Goodbye world!");
 }
