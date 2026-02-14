@@ -51,14 +51,28 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
     switch(outcome) {
         case DRAW: 
             strcpy(player_vs_cpu_str, player_choice_str);
-            strcat(player_vs_cpu_str, " equals ");
+            strcat(player_vs_cpu_str, " matches ");
             strcat(player_vs_cpu_str, cpu_choice_str);
 
             strcpy(outcome_str, "It's a draw!"); 
 
             break;
-        case WIN: strcpy(outcome_str, "You win!"); break;
-        case LOSE: strcpy(outcome_str, "You lose!"); break;
+        case WIN: strcpy(outcome_str, "You win!");
+            strcpy(player_vs_cpu_str, player_choice_str);
+            strcat(player_vs_cpu_str, " beats ");
+            strcat(player_vs_cpu_str, cpu_choice_str);
+
+            strcpy(outcome_str, "You win!");
+
+            break;
+        case LOSE: 
+            strcpy(player_vs_cpu_str, cpu_choice_str);
+            strcat(player_vs_cpu_str, " beats ");
+            strcat(player_vs_cpu_str, player_choice_str);
+
+            strcpy(outcome_str, "You lose!");
+            
+            break;
     }
 
     display_write_page(player_vs_cpu_str, 0, 1);
