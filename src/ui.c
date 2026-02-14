@@ -57,7 +57,7 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
             strcpy(outcome_str, "It's a draw!"); 
 
             break;
-        case WIN: strcpy(outcome_str, "You win!");
+        case WIN:
             strcpy(player_vs_cpu_str, player_choice_str);
             strcat(player_vs_cpu_str, " beats ");
             strcat(player_vs_cpu_str, cpu_choice_str);
