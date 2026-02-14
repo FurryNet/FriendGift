@@ -1,6 +1,7 @@
 #include <display.h>
 #include <ui.h>
 #include <string.h>
+#include <stdio.h>
 
 // Initialize the main menu screen
 void init_main_menu() {
@@ -25,7 +26,7 @@ void update_game_screen(rps_choice player_choice) {
         case PAPER: strcpy(choice_str, "Paper"); break;
         case SCISSORS: strcpy(choice_str, "Scissors"); break;
     }
-    display_write_page(choice_str, 2, 1);
+    display_write_page(choice_str, 1, 1);
 }
 
 // Display game result (+ gift card code if player wins)
@@ -80,8 +81,7 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
 
     // If win, display the gift card code, otherwise prompt to try again
     if (outcome == WIN) {
-        char code_str[30] = "Code: ";
-        strcat(code_str, gift_card_code);
+        snprintf(code_str, sizeof(code_str), "Code: %s", gift_card_code);
         display_write_page(code_str, 2, 1);
     } else {
         display_write_page("Press START to try again!", 2, 1);
