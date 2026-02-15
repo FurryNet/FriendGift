@@ -1,4 +1,4 @@
-
+#include <string.h>
 
 void init_sound();
 void sample_start();
