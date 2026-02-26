@@ -5,4 +5,7 @@
 void init_sound();
 void sample_start();
 void sample_stop();
-void play_pcm(uint8_t *pcm, size_t size);
+
+void play_lost_sound();
+void play_win_sound();
+void play_select_sound();
