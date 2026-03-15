@@ -2,10 +2,11 @@
 #include <esp_log.h>
 #include <driver/i2c.h>
 #include <ledcontrol.h>
-#include <sound.h>
 #include <btnctrl.h>
 #include <ui.h>
 #include <rps_alg.h>
+#include <sound.h>
+
 #define sda_pin 21
 #define scl_pin 20
 #define frequency 400000
@@ -44,12 +45,15 @@ void setup_i2c() {
 
 void turn_on_led() {
     set_led(1);
-    sample_start();
+    // sample_start();
+    //play_lost_sound();
+    play_select_sound();
     display_text("Hello world!");
 }
 
 void turn_off_led() {
     set_led(0);
-    sample_stop();
+    // sample_stop();
+    play_win_sound();
     display_text("Goodbye world!");
 }
