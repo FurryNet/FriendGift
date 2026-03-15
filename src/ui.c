@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 
+const char* giftCode = "{CODEHERE}";
+
 // Initialize the main menu screen
 void init_main_menu() {
     display_clear();
@@ -84,7 +86,7 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
         // char code_str[17]; // 16 horizonal max display + null term
         // snprintf(code_str, sizeof(code_str), "Code: %s", gift_card_code);
         display_write_page("Gift Card Code:", 2, 1);
-        display_write_page("{Codes Here}", 3, 1);
+        display_write_page(giftCode, 3, 1);
     } else {
         display_write_page("Press START to try again!", 2, 1);
     }
