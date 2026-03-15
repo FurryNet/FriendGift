@@ -37,16 +37,6 @@ void init_sound() {
     ledc_channel_config(&channel);
 }
 
-void sample_start() {
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 64);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
-}
-
-void sample_stop() {
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
-}
-
 static void play_tone(int freq, int duration_ms)
 {
     if (freq == 0) {
