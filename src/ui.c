@@ -32,7 +32,7 @@ void update_game_screen(rps_choice player_choice) {
 }
 
 // Display game result (+ gift card code if player wins)
-void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choice cpu_choice, char* gift_card_code) {
+void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choice cpu_choice) {
     display_clear();
     char outcome_str[15] = "";
     char player_choice_str[10] = "";
