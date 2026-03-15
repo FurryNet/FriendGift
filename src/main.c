@@ -3,6 +3,8 @@
 #include <driver/i2c.h>
 #include <ledcontrol.h>
 #include <btnctrl.h>
+#include <ui.h>
+#include <rps_alg.h>
 #include <sound.h>
 
 #define sda_pin 21
