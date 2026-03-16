@@ -55,6 +55,8 @@ void setup_i2c() {
 
 // Initialize game screen and register button events for cycling and confirming choice
 void start_game() {
+    btnctrl_unregister_event(); // Clear main menu event
+
     init_game_screen(playerChoice);
     play_select_sound();
 
@@ -71,6 +73,8 @@ void cycle_choice() {
 
 // Determine and display the game outcome
 void confirm_choice() {
+    btnctrl_unregister_event(); // Clear start_game events
+
     rps_choice cpuChoice = (rps_choice)(esp_random() % 3); // Generate random CPU choice
     rps_outcome outcome = determine_rps_outcome(playerChoice, cpuChoice); // Determine game outcome
     init_result_screen(outcome, playerChoice, cpuChoice); // Update screen with outcome and choices
