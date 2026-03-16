@@ -14,10 +14,18 @@ void init_main_menu() {
 }
 
 // Initialize the game screen with instructions and default choice
-void init_game_screen() {
+void init_game_screen(rps_choice player_choice) {
     display_clear();
+
+    char choice_str[10] = "";
+    switch(player_choice) {
+        case ROCK: strcpy(choice_str, "Rock"); break;
+        case PAPER: strcpy(choice_str, "Paper"); break;
+        case SCISSORS: strcpy(choice_str, "Scissors"); break;
+    }
+
     display_write_page("Press CYCLE to choose:", 0, 1);
-    display_write_page("Rock", 1, 1); // Assume first choice is rock, player cycles otherwise
+    display_write_page(choice_str, 1, 1); // Assume first choice is rock, player cycles otherwise
 }
 
 // Update the game screen with the player's current choice
