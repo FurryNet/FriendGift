@@ -94,7 +94,7 @@ void play_lost_sound()
     play_tone(0, 0); // silence at end
 }
 
-play_draw_sound() {
+void play_draw_sound() {
     int freqs[] = {600, 600, 600};
     for (int i = 0; i < 3; i++) {
         play_tone(freqs[i], 200);
