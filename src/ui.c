@@ -37,7 +37,7 @@ void update_game_screen(rps_choice player_choice) {
         case PAPER: strcpy(choice_str, "Paper"); break;
         case SCISSORS: strcpy(choice_str, "Scissors"); break;
     }
-    display_write_page(choice_str, 1, 1);
+    display_write_page(choice_str, 2, 1);
 }
 
 // Display game result (+ gift card code if player wins)
