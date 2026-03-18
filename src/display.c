@@ -27,7 +27,7 @@ void display_init()
 	dev._flip = false;
 	ssd1306_init(&dev, 128, 64);
 	display_clear();
-	xTaskCreate(display_write_queue, "display_write_queue", configMINIMAL_STACK_SIZE-512, NULL, 5, NULL);
+	xTaskCreate(display_write_queue, "display_write_queue", configMINIMAL_STACK_SIZE, NULL, 5, NULL);
 }
 
 // Clean the diasplay
