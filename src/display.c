@@ -27,7 +27,7 @@ void display_init()
 	dev._flip = false;
 	ssd1306_init(&dev, 128, 64);
 	display_clear();
-	xTaskCreate(display_write_queue, "display_write_queue", configMINIMAL_STACK_SIZE*2, NULL, 5, NULL);
+	xTaskCreate(display_write_queue, "display_write_queue", configMINIMAL_STACK_SIZE*1.5, NULL, 5, NULL);
 }
 
 // Clean the diasplay
@@ -78,7 +78,7 @@ void display_write_queue(void *pvParameters) {
 		displayQueue_t data;
 		if(xQueueReceive(writePageQueue, &data, portMAX_DELAY) == pdTRUE) {
 			/* Handler Stuff Here */
-			ssd1306_display_text(&dev, data.page, data.text, 16, false);
+			ssd1306_display_text(&dev, data.page, data.text, strlen(data.text), false);
 			free(data.text);
 		}
 		else
