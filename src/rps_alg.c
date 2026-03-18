@@ -1,11 +1,9 @@
 #include "rps_alg.h"
 #include <esp_random.h>
 
-// Produces CPU input, compares against player's input, and determines game outcome
-rps_outcome rps_algorithm(rps_choice player_input)
+// Compares CPU input against player's input and determines game outcome
+rps_outcome determine_rps_outcome(rps_choice player_input, rps_choice cpu_input)
 {
-    rps_choice cpu_input = (rps_choice)(esp_random() % 3); // Generate random CPU choice
-    
     // Determine outcome
     if (player_input == cpu_input) {
         return DRAW;

@@ -6,24 +6,36 @@
 #include <ui.h>
 #include <rps_alg.h>
 #include <sound.h>
+#include <esp_random.h>
 
 #define sda_pin 21
 #define scl_pin 20
 #define frequency 400000
 
 void setup_i2c();
-void turn_on_led();
-void turn_off_led();
+void start_game();
+void cycle_choice();
+void confirm_choice();
 
+rps_choice playerChoice = ROCK; // Default choice is rock, player can cycle through choices
+
+// Game flow: main menu -> game screen -> result screen -> back to game screen (if not win)
 
 void app_main() {
+    // Initialize all components
     ESP_LOGI("main", "Starting application");
     setup_i2c();
     init_led();
     display_init();
     btnctrl_init();
     init_sound();
-    btnctrl_register_event(turn_on_led, turn_off_led);
+
+    set_led(1); // Turn on LED to indicate device is ready
+
+    // Initiate main menu
+    init_main_menu();
+    play_main_menu_sound();
+    btnctrl_register_event(NULL, start_game);
 }
 
 void setup_i2c() {
@@ -42,18 +54,45 @@ void setup_i2c() {
         ESP_LOGE("I2C_Setup", "hdc2080 driver failed to install");
 }
 
+// Initialize game screen and register button events for cycling and confirming choice
+void start_game() {
+    btnctrl_unregister_event(); // Clear main menu event
 
-void turn_on_led() {
-    set_led(1);
-    // sample_start();
-    //play_lost_sound();
+    init_game_screen(playerChoice);
     play_select_sound();
-    display_text("Hello world!");
+
+    btnctrl_register_event(cycle_choice, confirm_choice);
 }
 
-void turn_off_led() {
-    set_led(0);
-    // sample_stop();
-    play_win_sound();
-    display_text("Goodbye world!");
+// Update game screen with current player choice when cycle button is pressed
+void cycle_choice() {
+    playerChoice = (playerChoice + 1) % 3; // Cycle through ROCK, PAPER, SCISSORS
+    update_game_screen(playerChoice);
+    play_select_sound();
+}
+
+
+// Determine and display the game outcome
+void confirm_choice() {
+    btnctrl_unregister_event(); // Clear start_game events
+
+    rps_choice cpuChoice = (rps_choice)(esp_random() % 3); // Generate random CPU choice
+    rps_outcome outcome = determine_rps_outcome(playerChoice, cpuChoice); // Determine game outcome
+    init_result_screen(outcome, playerChoice, cpuChoice); // Update screen with outcome and choices
+
+    // Play sound based on outcome and register event to start new game if not a win
+    switch (outcome) {
+        case WIN:
+            play_win_sound();
+            break;
+        case LOSE:
+            play_lost_sound();
+            btnctrl_register_event(NULL, start_game);
+            break;
+        case DRAW:
+            play_draw_sound();
+            btnctrl_register_event(NULL, start_game);
+            break;
+    }
+
 }

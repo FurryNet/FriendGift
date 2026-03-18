@@ -14,10 +14,19 @@ void init_main_menu() {
 }
 
 // Initialize the game screen with instructions and default choice
-void init_game_screen() {
+void init_game_screen(rps_choice player_choice) {
     display_clear();
-    display_write_page("Press CYCLE to choose:", 0, 1);
-    display_write_page("Rock", 1, 1); // Assume first choice is rock, player cycles otherwise
+
+    char choice_str[10] = "";
+    switch(player_choice) {
+        case ROCK: strcpy(choice_str, "Rock"); break;
+        case PAPER: strcpy(choice_str, "Paper"); break;
+        case SCISSORS: strcpy(choice_str, "Scissors"); break;
+    }
+
+    display_write_page("Press CYCLE", 0, 1);
+    display_write_page("to choose:", 1, 1);
+    display_write_page(choice_str, 2, 1); // Assume first choice is rock, player cycles otherwise
 }
 
 // Update the game screen with the player's current choice
@@ -28,7 +37,7 @@ void update_game_screen(rps_choice player_choice) {
         case PAPER: strcpy(choice_str, "Paper"); break;
         case SCISSORS: strcpy(choice_str, "Scissors"); break;
     }
-    display_write_page(choice_str, 1, 1);
+    display_write_page(choice_str, 2, 1);
 }
 
 // Display game result (+ gift card code if player wins)
@@ -54,7 +63,7 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
     switch(outcome) {
         case DRAW: 
             strcpy(player_vs_cpu_str, player_choice_str);
-            strcat(player_vs_cpu_str, " matches ");
+            strcat(player_vs_cpu_str, "=");
             strcat(player_vs_cpu_str, cpu_choice_str);
 
             strcpy(outcome_str, "It's a draw!"); 
@@ -62,7 +71,7 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
             break;
         case WIN:
             strcpy(player_vs_cpu_str, player_choice_str);
-            strcat(player_vs_cpu_str, " beats ");
+            strcat(player_vs_cpu_str, ">");
             strcat(player_vs_cpu_str, cpu_choice_str);
 
             strcpy(outcome_str, "You win!");
@@ -70,7 +79,7 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
             break;
         case LOSE: 
             strcpy(player_vs_cpu_str, cpu_choice_str);
-            strcat(player_vs_cpu_str, " beats ");
+            strcat(player_vs_cpu_str, ">");
             strcat(player_vs_cpu_str, player_choice_str);
 
             strcpy(outcome_str, "You lose!");
@@ -88,7 +97,8 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
         display_write_page("Gift Card Code:", 2, 1);
         display_write_page(giftCode, 3, 1);
     } else {
-        display_write_page("Press START to try again!", 2, 1);
+        display_write_page("Press START to", 2, 1);
+        display_write_page("try again!", 3, 1);
     }
 }
 

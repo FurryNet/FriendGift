@@ -51,6 +51,14 @@ static void play_tone(int freq, int duration_ms)
     vTaskDelay(pdMS_TO_TICKS(duration_ms));
 }
 
+void play_main_menu_sound() {
+    int freqs[] = {500, 700, 900};
+    for (int i = 0; i < 3; i++) {
+        play_tone(freqs[i], 200);
+        play_tone(0, 100);  // short pause
+    }
+}
+
 void play_win_sound() {
 
     int short_freqs[] = {400, 500, 600};
@@ -84,6 +92,14 @@ void play_lost_sound()
     play_tone(300, 600);
 
     play_tone(0, 0); // silence at end
+}
+
+void play_draw_sound() {
+    int freqs[] = {600, 600, 600};
+    for (int i = 0; i < 3; i++) {
+        play_tone(freqs[i], 200);
+        play_tone(0, 100);  // short pause
+    }
 }
 
 void play_select_sound() {
