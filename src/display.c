@@ -30,16 +30,16 @@ void display_init()
 	xTaskCreate(display_write_queue, "display_write_queue", configMINIMAL_STACK_SIZE*1.5, NULL, 5, NULL);
 }
 
-// Clean the diasplay
+// Clean the display
 void display_clear() {
 	ssd1306_clear_screen(&dev, false);
-	displayQueue_t data;
-	data.text = malloc(16);
-	memset(data.text,0x0, 16);
-	for(int i=0;i<5;i++) {
-		data.page = i;
-		xQueueSend(writePageQueue, &data, 0);
-	}
+	// for(int i=0;i<5;i++) {
+	// 	displayQueue_t data;
+	// 	data.text = malloc(16);
+	// 	memset(data.text, 0x0, 16);
+	// 	data.page = i;
+	// 	xQueueSend(writePageQueue, &data, 0);
+	// }
 }
 
 // Render text on the display
@@ -85,7 +85,11 @@ void display_write_queue(void *pvParameters) {
 		displayQueue_t data;
 		if(xQueueReceive(writePageQueue, &data, portMAX_DELAY) == pdTRUE) {
 			/* Handler Stuff Here */
-			ssd1306_display_text(&dev, data.page, data.text, strlen(data.text), false);
+			char zeros[16] = {0};
+			// The reason to write 0s is because the display sometime persist the text from previous queue and 0s somehow stops this issue
+			ssd1306_display_text(&dev, data.page, zeros, 16, false);
+			vTaskDelay(pdMS_TO_TICKS(10));
+			ssd1306_display_text(&dev, data.page, data.text, 16, false);
 			free(data.text);
 		}
 		else
