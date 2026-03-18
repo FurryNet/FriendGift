@@ -33,6 +33,13 @@ void display_init()
 // Clean the diasplay
 void display_clear() {
 	ssd1306_clear_screen(&dev, false);
+	displayQueue_t data;
+	data.text = malloc(16);
+	memset(data.text,0x0, 16);
+	for(int i=0;i<5;i++) {
+		data.page = i;
+		xQueueSend(writePageQueue, &data, 0);
+	}
 }
 
 // Render text on the display
