@@ -6,6 +6,7 @@
 #include <ui.h>
 #include <rps_alg.h>
 #include <sound.h>
+#include <esp_random.h>
 
 #define sda_pin 21
 #define scl_pin 20
