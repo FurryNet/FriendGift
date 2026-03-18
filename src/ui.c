@@ -97,7 +97,8 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
         display_write_page("Gift Card Code:", 2, 1);
         display_write_page(giftCode, 3, 1);
     } else {
-        display_write_page("Press START to try again!", 2, 1);
+        display_write_page("Press START to", 2, 1);
+        display_write_page("try again!", 3, 1);
     }
 }
 
