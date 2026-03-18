@@ -63,7 +63,7 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
     switch(outcome) {
         case DRAW: 
             strcpy(player_vs_cpu_str, player_choice_str);
-            strcat(player_vs_cpu_str, " matches ");
+            strcat(player_vs_cpu_str, "=");
             strcat(player_vs_cpu_str, cpu_choice_str);
 
             strcpy(outcome_str, "It's a draw!"); 
@@ -71,7 +71,7 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
             break;
         case WIN:
             strcpy(player_vs_cpu_str, player_choice_str);
-            strcat(player_vs_cpu_str, " beats ");
+            strcat(player_vs_cpu_str, ">");
             strcat(player_vs_cpu_str, cpu_choice_str);
 
             strcpy(outcome_str, "You win!");
@@ -79,7 +79,7 @@ void init_result_screen(rps_outcome outcome, rps_choice player_choice, rps_choic
             break;
         case LOSE: 
             strcpy(player_vs_cpu_str, cpu_choice_str);
-            strcat(player_vs_cpu_str, " beats ");
+            strcat(player_vs_cpu_str, ">");
             strcat(player_vs_cpu_str, player_choice_str);
 
             strcpy(outcome_str, "You lose!");
