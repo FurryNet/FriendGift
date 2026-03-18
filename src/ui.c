@@ -24,8 +24,9 @@ void init_game_screen(rps_choice player_choice) {
         case SCISSORS: strcpy(choice_str, "Scissors"); break;
     }
 
-    display_write_page("Press CYCLE to choose:", 0, 1);
-    display_write_page(choice_str, 1, 1); // Assume first choice is rock, player cycles otherwise
+    display_write_page("Press CYCLE", 0, 1);
+    display_write_page("to choose:", 1, 1);
+    display_write_page(choice_str, 2, 1); // Assume first choice is rock, player cycles otherwise
 }
 
 // Update the game screen with the player's current choice
