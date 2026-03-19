@@ -21,7 +21,7 @@ void display_write_queue(void *pvParameters);
 void display_init()
 {
 	// Init stuff
-	writePageQueue = xQueueCreate(32, sizeof(displayQueue_t));
+	writePageQueue = xQueueCreate(32, sizeof(displayQueue_t*));
 	// Addr Stuff
 	dev._address = 0x3C;
 	dev._flip = false;
@@ -50,29 +50,24 @@ void display_text(char* text) {
 
 // Write text to a specific line on the display (isCenter is used to center the text on the line)
 void display_write_page(const char* text, int page, int isCenter) {
+	displayQueue_t* data = malloc(sizeof(displayQueue_t));
+	data->page = page;
+	memset(data->text, 0x0, 17);
 	// Get the length and allocate the space
 	size_t text_len = strlen(text); // Each line only supports 16 characters
-	char* strArr = (char*)malloc(sizeof(char)*16);
 	text_len = text_len > 16 ? 16 : text_len;
 
 	// Check if the text needs to be centered
 	if(isCenter == 1) {
 		int padLen = ceil((16 - text_len) / 2);
 		for(int i = 0; i < padLen; i++)
-			strArr[i] = ' ';
+			data->text[i] = ' ';
 		for(int i = padLen; i < padLen+text_len; i++)
-			strArr[i] = text[i - padLen];
+			data->text[i] = text[i - padLen];
 		text_len+=padLen;
-
-		// Fill in the rest of the string with byte 0
-		for(int i = text_len; i < 16; i++)
-			strArr[i] = '\0';
-	} else strncpy(strArr, text, 16);
+	} else strncpy(data->text, text, 16);
 
 	// Add it to the queue
-	displayQueue_t data;
-	data.text = strArr;
-	data.page = page;
 	xQueueSend(writePageQueue, &data, 0);
 }
 
@@ -82,15 +77,15 @@ Executing ssd1306 display command simultaneously causes the display to glitch ou
 */
 void display_write_queue(void *pvParameters) {
 	while(1) {
-		displayQueue_t data;
+		displayQueue_t* data;
 		if(xQueueReceive(writePageQueue, &data, portMAX_DELAY) == pdTRUE) {
 			/* Handler Stuff Here */
 			char zeros[16] = {0};
 			// The reason to write 0s is because the display sometime persist the text from previous queue and 0s somehow stops this issue
-			ssd1306_display_text(&dev, data.page, zeros, 16, false);
+			ssd1306_display_text(&dev, data->page, zeros, 16, false);
 			vTaskDelay(pdMS_TO_TICKS(10));
-			ssd1306_display_text(&dev, data.page, data.text, 16, false);
-			free(data.text);
+			ssd1306_display_text(&dev, data->page, data->text, 16, false);
+			free(data);
 		}
 		else
 			vTaskDelay(pdMS_TO_TICKS(5));

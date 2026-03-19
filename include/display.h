@@ -2,7 +2,7 @@
 #include <string.h>
 
 typedef struct {
-    char* text;
+    char text[17];
     int page;
 } displayQueue_t;
 
