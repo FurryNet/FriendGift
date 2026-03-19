@@ -27,19 +27,15 @@ void display_init()
 	dev._flip = false;
 	ssd1306_init(&dev, 128, 64);
 	display_clear();
-	xTaskCreate(display_write_queue, "display_write_queue", configMINIMAL_STACK_SIZE*1.5, NULL, 5, NULL);
+	xTaskCreate(display_write_queue, "display_write_queue", 4096, NULL, 5, NULL);
 }
 
 // Clean the display
 void display_clear() {
-	ssd1306_clear_screen(&dev, false);
-	// for(int i=0;i<5;i++) {
-	// 	displayQueue_t data;
-	// 	data.text = malloc(16);
-	// 	memset(data.text, 0x0, 16);
-	// 	data.page = i;
-	// 	xQueueSend(writePageQueue, &data, 0);
-	// }
+	//ssd1306_clear_screen(&dev, false);
+	displayQueue_t* data = calloc(1, sizeof(displayQueue_t));
+	data->taskType = DISPLAY_CLEAR;
+	xQueueSend(writePageQueue, &data, 0);
 }
 
 // Render text on the display
@@ -50,9 +46,10 @@ void display_text(char* text) {
 
 // Write text to a specific line on the display (isCenter is used to center the text on the line)
 void display_write_page(const char* text, int page, int isCenter) {
-	displayQueue_t* data = malloc(sizeof(displayQueue_t));
+	displayQueue_t* data = calloc(1, sizeof(displayQueue_t));
+	data->taskType = DISPLAY_WRITE;
 	data->page = page;
-	memset(data->text, 0x0, 17);
+
 	// Get the length and allocate the space
 	size_t text_len = strlen(text); // Each line only supports 16 characters
 	text_len = text_len > 16 ? 16 : text_len;
@@ -79,7 +76,16 @@ void display_write_queue(void *pvParameters) {
 	while(1) {
 		displayQueue_t* data;
 		if(xQueueReceive(writePageQueue, &data, portMAX_DELAY) == pdTRUE) {
-			/* Handler Stuff Here */
+			// Dedicated Clear Task
+			if(data->taskType == DISPLAY_CLEAR) {
+				ssd1306_clear_screen(&dev, false);
+				continue;
+			}
+
+			/* Write Task */
+			if(data->taskType != DISPLAY_WRITE)
+				continue; // Might be bad memory data?
+
 			char zeros[16] = {0};
 			// The reason to write 0s is because the display sometime persist the text from previous queue and 0s somehow stops this issue
 			ssd1306_display_text(&dev, data->page, zeros, 16, false);
