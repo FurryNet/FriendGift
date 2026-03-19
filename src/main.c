@@ -7,31 +7,15 @@
 #include <rps_alg.h>
 #include <sound.h>
 #include <esp_random.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
 
 #define sda_pin 21
 #define scl_pin 20
 #define frequency 400000
 
-typedef enum {
-    EVT_START_GAME,
-    EVT_CYCLE_CHOICE,
-    EVT_CONFIRM_CHOICE,
-} game_event_t;
-
-static QueueHandle_t game_queue;
-
 void setup_i2c();
 void start_game();
 void cycle_choice();
 void confirm_choice();
-static void game_task(void *pvParameters);
-
-// Button callbacks — just enqueue an event and return immediately
-static void on_start_pressed(void *arg, void *data)   { game_event_t e = EVT_START_GAME;    xQueueSend(game_queue, &e, 0); }
-static void on_cycle_pressed(void *arg, void *data)    { game_event_t e = EVT_CYCLE_CHOICE;   xQueueSend(game_queue, &e, 0); }
-static void on_confirm_pressed(void *arg, void *data)  { game_event_t e = EVT_CONFIRM_CHOICE; xQueueSend(game_queue, &e, 0); }
 
 rps_choice playerChoice = ROCK; // Default choice is rock, player can cycle through choices
 
@@ -48,15 +32,10 @@ void app_main() {
 
     set_led(1); // Turn on LED to indicate device is ready
 
-    game_queue = xQueueCreate(4, sizeof(game_event_t));
-
     // Initiate main menu
     init_main_menu();
     play_main_menu_sound();
-    btnctrl_register_event(NULL, on_start_pressed);
-
-    // Game task runs all blocking logic (I2C display, sounds) on its own stack
-    xTaskCreate(game_task, "game_task", 4096, NULL, 5, NULL);
+    btnctrl_register_event(NULL, start_game);
 }
 
 void setup_i2c() {
@@ -75,29 +54,14 @@ void setup_i2c() {
         ESP_LOGE("I2C_Setup", "hdc2080 driver failed to install");
 }
 
-// Game task: processes button events on a dedicated stack
-static void game_task(void *pvParameters) {
-    game_event_t evt;
-    while (1) {
-        if (xQueueReceive(game_queue, &evt, portMAX_DELAY) == pdTRUE) {
-            switch (evt) {
-                case EVT_START_GAME:    start_game();     break;
-                case EVT_CYCLE_CHOICE:  cycle_choice();   break;
-                case EVT_CONFIRM_CHOICE: confirm_choice(); break;
-            }
-        }
-    }
-}
-
 // Initialize game screen and register button events for cycling and confirming choice
 void start_game() {
     btnctrl_unregister_event(); // Clear main menu event
-    xQueueReset(game_queue);   // Discard any stale button events
 
     init_game_screen(playerChoice);
     play_select_sound();
 
-    btnctrl_register_event(on_cycle_pressed, on_confirm_pressed);
+    btnctrl_register_event(cycle_choice, confirm_choice);
 }
 
 // Update game screen with current player choice when cycle button is pressed
@@ -111,7 +75,6 @@ void cycle_choice() {
 // Determine and display the game outcome
 void confirm_choice() {
     btnctrl_unregister_event(); // Clear start_game events
-    xQueueReset(game_queue);   // Discard any stale button events
 
     rps_choice cpuChoice = (rps_choice)(esp_random() % 3); // Generate random CPU choice
     rps_outcome outcome = determine_rps_outcome(playerChoice, cpuChoice); // Determine game outcome
@@ -124,11 +87,11 @@ void confirm_choice() {
             break;
         case LOSE:
             play_lost_sound();
-            btnctrl_register_event(NULL, on_start_pressed);
+            btnctrl_register_event(NULL, start_game);
             break;
         case DRAW:
             play_draw_sound();
-            btnctrl_register_event(NULL, on_start_pressed);
+            btnctrl_register_event(NULL, start_game);
             break;
     }
 
