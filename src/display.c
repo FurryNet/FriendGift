@@ -33,6 +33,7 @@ void display_init()
 // Clean the display
 void display_clear() {
 	//ssd1306_clear_screen(&dev, false);
+	xQueueReset(writePageQueue);
 	displayQueue_t* data = calloc(1, sizeof(displayQueue_t));
 	data->taskType = DISPLAY_CLEAR;
 	xQueueSend(writePageQueue, &data, 0);
@@ -79,12 +80,15 @@ void display_write_queue(void *pvParameters) {
 			// Dedicated Clear Task
 			if(data->taskType == DISPLAY_CLEAR) {
 				ssd1306_clear_screen(&dev, false);
+				free(data);
 				continue;
 			}
 
 			/* Write Task */
-			if(data->taskType != DISPLAY_WRITE)
+			if(data->taskType != DISPLAY_WRITE) {
+				free(data);
 				continue; // Might be bad memory data?
+			}
 
 			char zeros[16] = {0};
 			// The reason to write 0s is because the display sometime persist the text from previous queue and 0s somehow stops this issue

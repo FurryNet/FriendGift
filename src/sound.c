@@ -5,16 +5,48 @@
 #include <esp_log.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include <freertos/queue.h>
 
 #define GPIO 7
 #define SAMPLE_PERIOD_US (1000000 / SAMPLE_RATE)
+QueueHandle_t soundQueue;
 
-void pcm_playback_cb();
-struct playback_data {
-    uint8_t * buffer;
-    size_t buffer_size;
-    uint32_t curIndex;
-};
+void play_main_menu_sound();
+void play_draw_sound();
+void play_lost_sound();
+void play_win_sound();
+void play_select_sound();
+
+void play_sound(enum soundOpts soundType) {
+    xQueueSend(soundQueue, &soundType, 0);
+}
+
+void sound_queue_process() {
+    while(1) {
+		enum soundOpts soundOpt;
+		if(xQueueReceive(soundQueue, &soundOpt, portMAX_DELAY) == pdTRUE) {
+			switch(soundOpt) {
+                case SOUND_MAIN_MENU:
+                    play_main_menu_sound();
+                    break;
+                case SOUND_DRAW:
+                    play_draw_sound();
+                    break;
+                case SOUND_LOST:
+                    play_lost_sound();
+                    break;
+                case SOUND_WIN:
+                    play_win_sound();
+                    break;
+                case SOUND_SELECT:
+                    play_select_sound();
+                    break;
+            }
+		}
+		else
+			vTaskDelay(pdMS_TO_TICKS(5));
+	}
+}
 
 void init_sound() {
     ledc_timer_config_t timerconf = {
@@ -35,6 +67,10 @@ void init_sound() {
     };
     ledc_timer_config(&timerconf);
     ledc_channel_config(&channel);
+
+    // Audio Queue Handles
+    soundQueue = xQueueCreate(8, sizeof(enum soundOpts));
+    xTaskCreate(sound_queue_process, "sound_queue_process", 2048, NULL, 5, NULL);
 }
 
 static void play_tone(int freq, int duration_ms)

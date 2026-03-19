@@ -34,7 +34,7 @@ void app_main() {
 
     // Initiate main menu
     init_main_menu();
-    play_main_menu_sound();
+    play_sound(SOUND_MAIN_MENU);
     btnctrl_register_event(NULL, start_game);
 }
 
@@ -59,7 +59,7 @@ void start_game() {
     btnctrl_unregister_event(); // Clear main menu event
 
     init_game_screen(playerChoice);
-    play_select_sound();
+    play_sound(SOUND_SELECT);
 
     btnctrl_register_event(cycle_choice, confirm_choice);
 }
@@ -68,7 +68,7 @@ void start_game() {
 void cycle_choice() {
     playerChoice = (playerChoice + 1) % 3; // Cycle through ROCK, PAPER, SCISSORS
     update_game_screen(playerChoice);
-    play_select_sound();
+    play_sound(SOUND_SELECT);
 }
 
 
@@ -83,14 +83,14 @@ void confirm_choice() {
     // Play sound based on outcome and register event to start new game if not a win
     switch (outcome) {
         case WIN:
-            play_win_sound();
+            play_sound(SOUND_WIN);
             break;
         case LOSE:
-            play_lost_sound();
+            play_sound(SOUND_LOST);
             btnctrl_register_event(NULL, start_game);
             break;
         case DRAW:
-            play_draw_sound();
+            play_sound(SOUND_DRAW);
             btnctrl_register_event(NULL, start_game);
             break;
     }
