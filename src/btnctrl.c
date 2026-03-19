@@ -34,6 +34,8 @@ void btnctrl_register_event(button_cb_t select_cb, button_cb_t confirm_cb) {
 
 // Unregister button events (used when transitioning between screens to prevent unintended actions)
 void btnctrl_unregister_event() {
-    iot_button_unregister_cb(select_btn, BUTTON_SINGLE_CLICK, NULL);
-    iot_button_unregister_cb(confirm_btn, BUTTON_SINGLE_CLICK, NULL);
+    if(iot_button_count_event_cb(select_btn, BUTTON_SINGLE_CLICK) > 0)
+        iot_button_unregister_cb(select_btn, BUTTON_SINGLE_CLICK, NULL);
+    if(iot_button_count_event_cb(confirm_btn, BUTTON_SINGLE_CLICK) > 0)
+        iot_button_unregister_cb(confirm_btn, BUTTON_SINGLE_CLICK, NULL);
 }

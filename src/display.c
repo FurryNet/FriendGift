@@ -33,7 +33,6 @@ void display_init()
 // Clean the display
 void display_clear() {
 	//ssd1306_clear_screen(&dev, false);
-	xQueueReset(writePageQueue);
 	displayQueue_t* data = calloc(1, sizeof(displayQueue_t));
 	data->taskType = DISPLAY_CLEAR;
 	xQueueSend(writePageQueue, &data, 0);
