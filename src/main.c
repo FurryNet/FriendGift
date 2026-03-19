@@ -9,10 +9,49 @@
 #include <sound.h>
 #include <esp_random.h>
 
-
 rps_choice playerChoice = ROCK; // Default choice is rock, player can cycle through choices
+enum GameState currentState = STATE_MENU;
 
 // Game flow: main menu -> game screen -> result screen -> back to game screen (if not win)
+
+QueueHandle_t actionQueue;
+
+void queueHandle() {
+    while(1) {
+		enum ActionType actionOpt;
+		if(xQueueReceive(actionQueue, &actionOpt, portMAX_DELAY) == pdTRUE) {
+            if(actionOpt == Action_Confirm) {
+                switch(currentState) {
+                    case STATE_MENU:
+                        start_game();
+                        break;
+                    case STATE_PLAYING:
+                        confirm_choice();
+                        break;
+                    case STATE_OVER_LOST:
+                        start_game();
+                        break;
+                    case STATE_OVER_WIN:
+                        break;
+                }
+            }
+			if(actionOpt == Action_Select && currentState == STATE_PLAYING)
+                cycle_choice();
+		}
+		else
+			vTaskDelay(pdMS_TO_TICKS(5));
+    }
+}
+
+void selectHandle() {
+    enum ActionType curAction = Action_Select;
+    xQueueSend(actionQueue, &curAction, 0);
+}
+
+void confirmHandle() {
+    enum ActionType curAction = Action_Confirm;
+    xQueueSend(actionQueue, &curAction, 0);
+}
 
 void app_main() {
     // Initialize all components
@@ -22,13 +61,17 @@ void app_main() {
     display_init();
     btnctrl_init();
     init_sound();
+    
+    // Queue Managers
+    actionQueue = xQueueCreate(8, sizeof(enum ActionType));
+    xTaskCreate(queueHandle, "main_control_handle", 4096, NULL, 5, NULL);
 
     set_led(1); // Turn on LED to indicate device is ready
 
     // Initiate main menu
     init_main_menu();
     play_sound(SOUND_MAIN_MENU);
-    btnctrl_register_event(NULL, start_game);
+    btnctrl_register_event(selectHandle, confirmHandle);
 }
 
 void setup_i2c() {
@@ -49,12 +92,9 @@ void setup_i2c() {
 
 // Initialize game screen and register button events for cycling and confirming choice
 void start_game() {
-    btnctrl_unregister_event(); // Clear main menu event
-
     init_game_screen(playerChoice);
     play_sound(SOUND_SELECT);
-
-    btnctrl_register_event(cycle_choice, confirm_choice);
+    currentState = STATE_PLAYING;
 }
 
 // Update game screen with current player choice when cycle button is pressed
@@ -67,8 +107,6 @@ void cycle_choice() {
 
 // Determine and display the game outcome
 void confirm_choice() {
-    btnctrl_unregister_event(); // Clear start_game events
-
     rps_choice cpuChoice = (rps_choice)(esp_random() % 3); // Generate random CPU choice
     rps_outcome outcome = determine_rps_outcome(playerChoice, cpuChoice); // Determine game outcome
     init_result_screen(outcome, playerChoice, cpuChoice); // Update screen with outcome and choices
@@ -77,14 +115,15 @@ void confirm_choice() {
     switch (outcome) {
         case WIN:
             play_sound(SOUND_WIN);
+            currentState = STATE_OVER_WIN;
             break;
         case LOSE:
             play_sound(SOUND_LOST);
-            btnctrl_register_event(NULL, start_game);
+            currentState = STATE_OVER_LOST;
             break;
         case DRAW:
             play_sound(SOUND_DRAW);
-            btnctrl_register_event(NULL, start_game);
+            currentState = STATE_OVER_LOST;
             break;
     }
 

@@ -10,5 +10,11 @@ void confirm_choice();
 enum GameState {
     STATE_MENU,
     STATE_PLAYING,
-    STATE_OVER
+    STATE_OVER_LOST,
+    STATE_OVER_WIN,
+};
+
+enum ActionType {
+    Action_Select,
+    Action_Confirm,
 };
