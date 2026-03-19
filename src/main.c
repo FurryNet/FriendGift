@@ -1,3 +1,4 @@
+#include "main.h"
 #include <display.h>
 #include <esp_log.h>
 #include <driver/i2c.h>
@@ -8,14 +9,6 @@
 #include <sound.h>
 #include <esp_random.h>
 
-#define sda_pin 21
-#define scl_pin 20
-#define frequency 400000
-
-void setup_i2c();
-void start_game();
-void cycle_choice();
-void confirm_choice();
 
 rps_choice playerChoice = ROCK; // Default choice is rock, player can cycle through choices
 
