@@ -35,7 +35,8 @@ void display_clear() {
 	//ssd1306_clear_screen(&dev, false);
 	displayQueue_t* data = calloc(1, sizeof(displayQueue_t));
 	data->taskType = DISPLAY_CLEAR;
-	xQueueSend(writePageQueue, &data, 0);
+	if(xQueueSend(writePageQueue, &data, 0) != pdPASS)
+		free(data);
 }
 
 // Render text on the display
@@ -65,7 +66,8 @@ void display_write_page(const char* text, int page, int isCenter) {
 	} else strncpy(data->text, text, 16);
 
 	// Add it to the queue
-	xQueueSend(writePageQueue, &data, 0);
+	if(xQueueSend(writePageQueue, &data, 0) != pdPASS)
+		free(data);
 }
 
 /*
