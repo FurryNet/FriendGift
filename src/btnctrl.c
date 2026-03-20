@@ -25,17 +25,17 @@ void btnctrl_init() {
 
 // Register button events for select and confirm actions
 void btnctrl_register_event(button_cb_t select_cb, button_cb_t confirm_cb) {
-    if (select_cb != NULL) {
+    if (select_cb != NULL)
         iot_button_register_cb(select_btn, BUTTON_SINGLE_CLICK, NULL, select_cb, NULL);
-    }
     
-    if (confirm_cb != NULL) {
+    if (confirm_cb != NULL)
         iot_button_register_cb(confirm_btn, BUTTON_SINGLE_CLICK, NULL, confirm_cb, NULL);
-    }
 }
 
 // Unregister button events (used when transitioning between screens to prevent unintended actions)
 void btnctrl_unregister_event() {
-    iot_button_unregister_cb(select_btn, BUTTON_SINGLE_CLICK, NULL);
-    iot_button_unregister_cb(confirm_btn, BUTTON_SINGLE_CLICK, NULL);
+    if(iot_button_count_event_cb(select_btn, BUTTON_SINGLE_CLICK) > 0)
+        iot_button_unregister_cb(select_btn, BUTTON_SINGLE_CLICK, NULL);
+    if(iot_button_count_event_cb(confirm_btn, BUTTON_SINGLE_CLICK) > 0)
+        iot_button_unregister_cb(confirm_btn, BUTTON_SINGLE_CLICK, NULL);
 }

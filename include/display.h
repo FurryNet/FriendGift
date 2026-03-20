@@ -1,8 +1,14 @@
 
 #include <string.h>
 
+enum TaskOpt {
+    DISPLAY_CLEAR,
+    DISPLAY_WRITE
+};
+
 typedef struct {
-    char* text;
+    enum TaskOpt taskType;
+    char text[17];
     int page;
 } displayQueue_t;
 
